@@ -1,2 +1,3 @@
-# Breast_Cancer_Prediction
-Diagnosis of breast cancer is performed with the aid of Machine Learning Algorithms
+# Breast Cancer Prediction
+This project implements a machine learning model to predict breast cancer diagnosis based on tumor characteristics. The model was trained on a dataset containing features such as mean radius, mean texture, mean perimeter, mean area, and mean smoothness. The predictive model was built using Support Vector Machine (SVM) algorithm and was saved for deployment using the Plumber package in R. The API endpoint /predict_breast_cancer_diagnosis accepts HTTP POST requests with JSON data containing tumor characteristics as input and returns the predicted diagnosis as output. The goal of this project is to provide a simple and efficient way for users to obtain predictions for breast cancer diagnosis, which can aid in early detection and treatment planning.
+
