@@ -31,3 +31,28 @@ bootstrap_results <- boot(data = breast_cancer_data, statistic = bootstrap_funct
 # Display bootstrapping results
 print(bootstrap_results)
 plot(bootstrap_results)
+
+# Install and load the caret package
+install.packages("caret")
+library(caret)
+
+# Set up cross-validation
+train_control <- trainControl(method = "cv", number = 10)
+
+# Train a model using cross-validation (example with logistic regression)
+set.seed(123)
+model <- train(diagnosis ~ mean_radius + mean_texture + mean_perimeter + mean_area + mean_smoothness,
+               data = training_set,
+               method = "glm",
+               family = binomial,
+               trControl = train_control)
+
+# Print the model summary
+print(model)
+
+# Make predictions on the testing set
+predictions <- predict(model, newdata = testing_set)
+
+# Evaluate the model's performance
+confusion_matrix <- confusionMatrix(predictions, testing_set$diagnosis)
+print(confusion_matrix)
