@@ -86,3 +86,76 @@ print(anova_mean_area)
 # ANOVA for mean_smoothness
 anova_mean_smoothness <- summary(aov(mean_smoothness ~ diagnosis, data = breast_cancer_data))
 print(anova_mean_smoothness)
+
+# Load ggplot2 for plotting
+library(ggplot2)
+
+# Create histograms for numeric variables
+ggplot(breast_cancer_data, aes(x = mean_radius)) + 
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Radius")
+
+ggplot(breast_cancer_data, aes(x = mean_texture)) + 
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Texture")
+
+ggplot(breast_cancer_data, aes(x = mean_perimeter)) + 
+  geom_histogram(binwidth = 5, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Perimeter")
+
+ggplot(breast_cancer_data, aes(x = mean_area)) + 
+  geom_histogram(binwidth = 50, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Area")
+
+ggplot(breast_cancer_data, aes(x = mean_smoothness)) + 
+  geom_histogram(binwidth = 0.01, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Smoothness")
+# Create box plots for numeric variables by diagnosis
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_radius, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Radius by Diagnosis")
+
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_texture, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Texture by Diagnosis")
+
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_perimeter, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Perimeter by Diagnosis")
+
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_area, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Area by Diagnosis")
+
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_smoothness, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Smoothness by Diagnosis")
+
+# Bar plot for the diagnosis variable
+ggplot(breast_cancer_data, aes(x = diagnosis, fill = diagnosis)) + 
+  geom_bar() +
+  ggtitle("Bar Plot of Diagnosis")
+
+# Scatter plots colored by diagnosis
+ggplot(breast_cancer_data, aes(x = mean_radius, y = mean_texture, color = diagnosis)) + 
+  geom_point() +
+  ggtitle("Scatter Plot of Mean Radius vs. Mean Texture")
+
+ggplot(breast_cancer_data, aes(x = mean_radius, y = mean_perimeter, color = diagnosis)) + 
+  geom_point() +
+  ggtitle("Scatter Plot of Mean Radius vs. Mean Perimeter")
+
+ggplot(breast_cancer_data, aes(x = mean_radius, y = mean_area, color = diagnosis)) + 
+  geom_point() +
+  ggtitle("Scatter Plot of Mean Radius vs. Mean Area")
+
+ggplot(breast_cancer_data, aes(x = mean_radius, y = mean_smoothness, color = diagnosis)) + 
+  geom_point() +
+  ggtitle("Scatter Plot of Mean Radius vs. Mean Smoothness")
+
+# Install and load GGally for pair plots
+install.packages("GGally")
+library(GGally)
+
+# Pair plot for numeric variables colored by diagnosis
+ggpairs(breast_cancer_data, columns = 1:5, ggplot2::aes(color = diagnosis))
