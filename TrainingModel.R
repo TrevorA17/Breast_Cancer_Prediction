@@ -32,6 +32,8 @@ testing_set <- subset(breast_cancer_data, split == FALSE)
 # Display the structure of the training and testing sets
 str(training_set)
 str(testing_set)
+dim(training_set)
+dim(testing_set)
 
 # Install and load the boot package
 install.packages("boot")
