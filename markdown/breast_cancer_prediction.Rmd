@@ -1,0 +1,417 @@
+---
+title: "Breast Cancer Prediction"
+author: "134780 Trevor Okinda"
+date: "2024"
+output:
+  github_document: 
+    toc: yes
+    toc_depth: 4
+    fig_width: 6
+    fig_height: 4
+    df_print: default
+editor_options:
+  chunk_output_type: console
+---
+
+# Student Details
+
+|                                              |     |
+|----------------------------------------------|-----|
+| **Student ID Number**                        | 134780 |
+| **Student Name**                             | Trevor Okinda |
+| **BBIT 4.2 Group**                           | C |
+| **Project Name**                             | Breast Cancer Prediction |
+
+# Setup Chunk
+
+**Note:** the following KnitR options have been set as the global defaults: <BR> `knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy = TRUE)`.
+
+More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
+
+```{r setup, include=FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = FALSE
+)
+```
+
+### Source: 
+
+The dataset that was used can be downloaded here: *\<https://www.kaggle.com/datasets/merishnasuwal/breast-cancer-prediction-dataset\>*
+
+### Reference:
+
+*\<merishnasuwal. (n.d.). Breast Cancer Prediction Dataset. Kaggle. Retrieved April 17, 2025, from https://www.kaggle.com/datasets/merishnasuwal/breast-cancer-prediction-dataset\>\
+Refer to the APA 7th edition manual for rules on how to cite datasets: <https://apastyle.apa.org/style-grammar-guidelines/references/examples/data-set-references>*
+
+# Understanding the Dataset (Exploratory Data Analysis (EDA))
+## Loading dataset
+```{r loading dataset}
+# Load dataset
+breast_cancer_data <- read.csv("Breast_cancer_data.csv", colClasses = c(
+  mean_radius = "numeric",
+  mean_texture = "numeric",
+  mean_perimeter = "numeric",
+  mean_area = "numeric",
+  mean_smoothness = "numeric",
+  diagnosis = "factor"
+))
+
+# Display the structure of the dataset
+str(breast_cancer_data)
+
+# View the first few rows of the dataset
+head(breast_cancer_data)
+
+# View the dataset in a separate viewer window
+View(breast_cancer_data)
+```
+
+## Measures of Frequency
+```{r MOF}
+# Frequency distribution for the diagnosis
+diagnosis_freq <- table(breast_cancer_data$diagnosis)
+print(diagnosis_freq)
+
+# Proportion of each class
+diagnosis_prop <- prop.table(diagnosis_freq)
+print(diagnosis_prop)
+```
+
+## Measures of Central Tendency
+```{r MOCT}
+# Mean for numeric variables
+mean_values <- sapply(breast_cancer_data[, 1:5], mean)
+print(mean_values)
+
+# Median for numeric variables
+median_values <- sapply(breast_cancer_data[, 1:5], median)
+print(median_values)
+
+# Mode function
+get_mode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+```
+
+## Measures of Distribution
+```{r MOD}
+# Since mode is not typically used for numeric variables in this context, we'll skip it for now.
+# Variance for numeric variables
+variance_values <- sapply(breast_cancer_data[, 1:5], var)
+print(variance_values)
+
+# Standard deviation for numeric variables
+sd_values <- sapply(breast_cancer_data[, 1:5], sd)
+print(sd_values)
+
+# Skewness and kurtosis require the 'moments' package
+library(moments)
+
+# Skewness for numeric variables
+skewness_values <- sapply(breast_cancer_data[, 1:5], skewness)
+print(skewness_values)
+
+# Kurtosis for numeric variables
+kurtosis_values <- sapply(breast_cancer_data[, 1:5], kurtosis)
+print(kurtosis_values)
+```
+
+## Measures of Relationship
+```{r MOR}
+# Correlation matrix for numeric variables
+correlation_matrix <- cor(breast_cancer_data[, 1:5])
+print(correlation_matrix)
+
+# Scatter plot matrix
+pairs(breast_cancer_data[, 1:5], main = "Scatterplot Matrix")
+```
+
+## ANOVA
+```{r ANOVA}
+# ANOVA for mean_radius
+anova_mean_radius <- summary(aov(mean_radius ~ diagnosis, data = breast_cancer_data))
+print(anova_mean_radius)
+
+# ANOVA for mean_texture
+anova_mean_texture <- summary(aov(mean_texture ~ diagnosis, data = breast_cancer_data))
+print(anova_mean_texture)
+
+# ANOVA for mean_perimeter
+anova_mean_perimeter <- summary(aov(mean_perimeter ~ diagnosis, data = breast_cancer_data))
+print(anova_mean_perimeter)
+
+# ANOVA for mean_area
+anova_mean_area <- summary(aov(mean_area ~ diagnosis, data = breast_cancer_data))
+print(anova_mean_area)
+
+# ANOVA for mean_smoothness
+anova_mean_smoothness <- summary(aov(mean_smoothness ~ diagnosis, data = breast_cancer_data))
+print(anova_mean_smoothness)
+```
+
+## Plots
+```{r Plots}
+# Load ggplot2 for plotting
+library(ggplot2)
+
+# Create histograms for numeric variables
+ggplot(breast_cancer_data, aes(x = mean_radius)) + 
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Radius")
+
+ggplot(breast_cancer_data, aes(x = mean_texture)) + 
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Texture")
+
+ggplot(breast_cancer_data, aes(x = mean_perimeter)) + 
+  geom_histogram(binwidth = 5, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Perimeter")
+
+ggplot(breast_cancer_data, aes(x = mean_area)) + 
+  geom_histogram(binwidth = 50, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Area")
+
+ggplot(breast_cancer_data, aes(x = mean_smoothness)) + 
+  geom_histogram(binwidth = 0.01, fill = "blue", color = "black") +
+  ggtitle("Histogram of Mean Smoothness")
+# Create box plots for numeric variables by diagnosis
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_radius, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Radius by Diagnosis")
+
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_texture, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Texture by Diagnosis")
+
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_perimeter, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Perimeter by Diagnosis")
+
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_area, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Area by Diagnosis")
+
+ggplot(breast_cancer_data, aes(x = diagnosis, y = mean_smoothness, fill = diagnosis)) + 
+  geom_boxplot() +
+  ggtitle("Box Plot of Mean Smoothness by Diagnosis")
+
+# Bar plot for the diagnosis variable
+ggplot(breast_cancer_data, aes(x = diagnosis, fill = diagnosis)) + 
+  geom_bar() +
+  ggtitle("Bar Plot of Diagnosis")
+
+# Scatter plots colored by diagnosis
+ggplot(breast_cancer_data, aes(x = mean_radius, y = mean_texture, color = diagnosis)) + 
+  geom_point() +
+  ggtitle("Scatter Plot of Mean Radius vs. Mean Texture")
+
+ggplot(breast_cancer_data, aes(x = mean_radius, y = mean_perimeter, color = diagnosis)) + 
+  geom_point() +
+  ggtitle("Scatter Plot of Mean Radius vs. Mean Perimeter")
+
+ggplot(breast_cancer_data, aes(x = mean_radius, y = mean_area, color = diagnosis)) + 
+  geom_point() +
+  ggtitle("Scatter Plot of Mean Radius vs. Mean Area")
+
+ggplot(breast_cancer_data, aes(x = mean_radius, y = mean_smoothness, color = diagnosis)) + 
+  geom_point() +
+  ggtitle("Scatter Plot of Mean Radius vs. Mean Smoothness")
+
+# Install and load GGally for pair plots
+library(GGally)
+
+# Pair plot for numeric variables colored by diagnosis
+ggpairs(breast_cancer_data, columns = 1:5, ggplot2::aes(color = diagnosis))
+
+```
+
+# Preprocessing and Data Transformation
+## Missing Values
+```{r Missing Values}
+# Check for missing values in the entire dataset
+total_missing_values <- sum(is.na(breast_cancer_data))
+print(paste("Total missing values:", total_missing_values))
+
+# Install and load the VIM package
+library(VIM)
+
+# Plot missing data
+aggr(breast_cancer_data, col = c('navyblue', 'red'), numbers = TRUE, sortVars = TRUE, labels = names(breast_cancer_data), cex.axis = .7, gap = 3, ylab = c("Missing data", "Pattern"))
+
+
+```
+
+# Training Model
+## Data Splitting
+```{r Data Splitting}
+# Install and load the caTools package
+library(caTools)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Split the data into training (70%) and testing (30%) sets
+split <- sample.split(breast_cancer_data$diagnosis, SplitRatio = 0.7)
+training_set <- subset(breast_cancer_data, split == TRUE)
+testing_set <- subset(breast_cancer_data, split == FALSE)
+
+# Display the structure of the training and testing sets
+str(training_set)
+str(testing_set)
+dim(training_set)
+dim(testing_set)
+```
+
+## Bootstrapping
+```{r Bootstrapping}
+# Install and load the boot package
+library(boot)
+
+# Define a function to compute the statistic of interest (mean in this case)
+bootstrap_function <- function(data, indices) {
+  d <- data[indices, ]  # allows boot to select sample
+  return(mean(d$mean_radius))  # example statistic
+}
+
+# Apply bootstrapping
+set.seed(123)
+bootstrap_results <- boot(data = breast_cancer_data, statistic = bootstrap_function, R = 1000)
+
+# Display bootstrapping results
+print(bootstrap_results)
+plot(bootstrap_results)
+```
+
+## Cross-validation
+```{r Cross-validation}
+# Install and load the caret package
+library(caret)
+
+# Set up cross-validation
+train_control <- trainControl(method = "cv", number = 10)
+
+# Train a model using cross-validation (example with logistic regression)
+set.seed(123)
+model <- train(diagnosis ~ mean_radius + mean_texture + mean_perimeter + mean_area + mean_smoothness,
+               data = training_set,
+               method = "glm",
+               family = binomial,
+               trControl = train_control)
+
+# Print the model summary
+print(model)
+
+# Make predictions on the testing set
+predictions <- predict(model, newdata = testing_set)
+
+# Evaluate the model's performance
+confusion_matrix <- confusionMatrix(predictions, testing_set$diagnosis)
+print(confusion_matrix)
+```
+
+# Model Training
+```{r Model Training}
+# Model Training
+
+# Generalized Linear Model (GLM)
+# Install and load the caret package
+library(caret)
+
+# Train a GLM model
+set.seed(123)
+glm_model <- train(diagnosis ~ mean_radius + mean_texture + mean_perimeter + mean_area + mean_smoothness,
+                   data = training_set,
+                   method = "glm",
+                   family = binomial,
+                   trControl = trainControl(method = "cv", number = 10))
+
+# Print the GLM model summary
+print(glm_model)
+
+# Make predictions on the testing set
+glm_predictions <- predict(glm_model, newdata = testing_set)
+
+# Evaluate the GLM model's performance
+glm_confusion_matrix <- confusionMatrix(glm_predictions, testing_set$diagnosis)
+print(glm_confusion_matrix)
+
+# Support Vector Machine (SVM)
+# Install and load the e1071 package for SVM
+library(e1071)
+
+# Train a SVM model
+set.seed(123)
+svm_model <- train(diagnosis ~ mean_radius + mean_texture + mean_perimeter + mean_area + mean_smoothness,
+                   data = training_set,
+                   method = "svmLinear",
+                   trControl = trainControl(method = "cv", number = 10))
+
+# Print the SVM model summary
+print(svm_model)
+
+# Make predictions on the testing set
+svm_predictions <- predict(svm_model, newdata = testing_set)
+
+# Evaluate the SVM model's performance
+svm_confusion_matrix <- confusionMatrix(svm_predictions, testing_set$diagnosis)
+print(svm_confusion_matrix)
+
+# Principal Component Analysis (PCA) with Logistic Regression
+# Perform PCA
+pca <- prcomp(training_set[, 1:5], center = TRUE, scale. = TRUE)
+
+# Print the summary of PCA
+summary(pca)
+
+# Add the PCA results to the training and testing sets
+training_set_pca <- as.data.frame(predict(pca, training_set[, 1:5]))
+training_set_pca$diagnosis <- training_set$diagnosis
+
+testing_set_pca <- as.data.frame(predict(pca, testing_set[, 1:5]))
+testing_set_pca$diagnosis <- testing_set$diagnosis
+
+# Train a logistic regression model on the PCA components
+set.seed(123)
+pca_glm_model <- train(diagnosis ~ PC1 + PC2 + PC3 + PC4 + PC5,
+                       data = training_set_pca,
+                       method = "glm",
+                       family = binomial,
+                       trControl = trainControl(method = "cv", number = 10))
+
+# Print the PCA-GLM model summary
+print(pca_glm_model)
+
+# Make predictions on the testing set using the PCA components
+pca_glm_predictions <- predict(pca_glm_model, newdata = testing_set_pca)
+
+# Evaluate the PCA-GLM model's performance
+pca_glm_confusion_matrix <- confusionMatrix(pca_glm_predictions, testing_set_pca$diagnosis)
+print(pca_glm_confusion_matrix)
+```
+
+# Saving Model
+```{r Saving Model}
+# Load the saved SVM model
+loaded_model_svm <- readRDS("./models/svm_model.rds")
+
+# Prepare new data for prediction
+new_data <- data.frame(
+  mean_radius = 17.99,
+  mean_texture = 10.38,
+  mean_perimeter = 122.8,
+  mean_area = 1001,
+  mean_smoothness = 0.1184
+)
+
+# Use the loaded model to make predictions for new data
+predictions_loaded_model <- predict(loaded_model_svm, newdata = new_data)
+
+# Print predictions
+print(predictions_loaded_model)
+
+```
+
+
